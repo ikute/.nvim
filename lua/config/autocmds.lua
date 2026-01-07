@@ -82,3 +82,24 @@ vim.api.nvim_create_autocmd("LspAttach", {
         end
     end,
 })
+
+-- Format on save (efm-langserver)
+local lsp_fmt_group = vim.api.nvim_create_augroup("FormatOnSaveGroup", {})
+vim.api.nvim_create_autocmd("BufWritePre", {
+    group = lsp_fmt_group,
+    callback = function(ev)
+        local client_name = "efm"
+
+        local clients = vim.lsp.get_clients({ bufnr = ev.buf, name = client_name })
+        if #clients == 0 then
+            return
+        end
+
+        vim.lsp.buf.format({
+            bufnr = ev.buf,
+            name = client_name,
+            async = false,
+            timeout_ms = 3000,
+        })
+    end,
+})
